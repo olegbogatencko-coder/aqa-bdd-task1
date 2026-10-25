@@ -1,42 +1,37 @@
 package pages;
 
-import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import data.DataHelper;
-
-import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Condition.partialText;
 
 public class DashboardPage {
-    // Ищем все элементы, содержащие текст с балансом (обычно это div или span)
-    private final ElementsCollection cards = $$("div").filterBy(text("баланс:"));
+    private final SelenideElement refreshButton = $("[data-test-id='action-reload']");
 
-    // Ищем все кнопки "Пополнить"
-    private final ElementsCollection topUpButtons = $$("button").filterBy(text("Пополнить"));
+    public DashboardPage() {
+        $("[data-test-id='dashboard']").shouldBe(visible);
+    }
+
+    private SelenideElement getCardBlock(String cardNumber) {
+        // Берем последние 4 цифры номера карты, так как на странице номер замаскирован (**** **** **** 0001)
+        String last4Digits = cardNumber.substring(cardNumber.length() - 4);
+        return $$("[data-test-id]").findBy(partialText(last4Digits));
+    }
 
     public int getCardBalance(String cardNumber) {
-        String cleanNumber = cardNumber.replaceAll("\\s", "");
-        String last4Digits = cleanNumber.substring(cleanNumber.length() - 4);
-
-        // Находим карту по последним 4 цифрам и берем её текст
-        SelenideElement card = cards.findBy(text(last4Digits));
-        String cardText = card.text();
-        return DataHelper.extractBalance(cardText);
+        String cardText = getCardBlock(cardNumber).getText();
+        // Берем часть строки после слова "баланс:" и оставляем только цифры
+        String balanceStr = cardText.split("баланс:")[1].replaceAll("\\D", "");
+        return Integer.parseInt(balanceStr);
     }
 
     public TransferPage clickTopUpButton(String cardNumber) {
-        String cleanNumber = cardNumber.replaceAll("\\s", "");
-        String last4Digits = cleanNumber.substring(cleanNumber.length() - 4);
-
-        // В этом приложении кнопки идут в том же порядке, что и карты.
-        // Если карта заканчивается на 0001 — жмем первую кнопку, если на 0002 — вторую.
-        if (last4Digits.equals("0001")) {
-            topUpButtons.get(0).click();
-        } else {
-            topUpButtons.get(1).click();
-        }
-
+        getCardBlock(cardNumber).$("[data-test-id='action-deposit']").click();
         return new TransferPage();
+    }
+
+    public void refresh() {
+        refreshButton.click();
     }
 }

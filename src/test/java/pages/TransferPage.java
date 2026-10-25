@@ -1,25 +1,32 @@
 package pages;
 
 import com.codeborne.selenide.SelenideElement;
-
+import org.openqa.selenium.Keys;
 import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$x;
+import static com.codeborne.selenide.Condition.visible;
 
 public class TransferPage {
-    // Ищем поля ввода по тексту заголовков, которые идут перед ними
-    private final SelenideElement amountInput = $x("//*[contains(text(), 'Сумма')]/following::input[1]");
-    private final SelenideElement fromInput = $x("//*[contains(text(), 'Откуда')]/following::input[1]");
+    private final SelenideElement amountField = $("[data-test-id='amount'] input");
+    private final SelenideElement fromField = $("[data-test-id='from'] input");
+    private final SelenideElement transferButton = $("[data-test-id='action-transfer']");
 
-    public DashboardPage makeTransfer(String fromCardNumber, int amount) {
-        amountInput.setValue(String.valueOf(amount));
+    public TransferPage() {
+        amountField.shouldBe(visible);
+    }
 
-        // Очищаем поле перед вводом
-        fromInput.clear();
-        fromInput.setValue(fromCardNumber);
+    public DashboardPage makeTransfer(String fromCard, int amount) {
+        // Очистка поля "Откуда"
+        fromField.sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.BACK_SPACE);
+        fromField.setValue(fromCard);
 
-        // Нажимаем на первую кнопку на странице (это точно "Пополнить", так как "Отмена" идет второй)
-        $("button").click();
+        // Очистка поля "Сумма"
+        amountField.sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.BACK_SPACE);
+        amountField.setValue(String.valueOf(amount));
 
+        // Нажимаем "Перевести"
+        transferButton.click();
+
+        // Возвращаемся на главную страницу
         return new DashboardPage();
     }
 }

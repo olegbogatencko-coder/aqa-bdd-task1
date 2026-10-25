@@ -17,13 +17,25 @@ repositories {
 }
 
 dependencies {
+    // JUnit 5 для тестов
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+
+    // Selenide для работы с браузером
     testImplementation 'com.codeborne:selenide:6.19.1'
+
+    // Lombok для генерации кода (аннотации @Value, @Data, @Builder)
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    testCompileOnly 'org.projectlombok:lombok:1.18.30'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    // Логирование
     testImplementation 'org.slf4j:slf4j-simple:2.0.3'
 }
 
 test {
     useJUnitPlatform()
+    // Передача параметров для CI (headless режим и настройки Chrome)
     systemProperty 'selenide.headless', System.getProperty('selenide.headless')
     systemProperty 'chromeoptions.prefs', System.getProperty('chromeoptions.prefs', "profile.password_manager_leak_detection=false")
 }

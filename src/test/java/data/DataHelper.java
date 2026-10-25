@@ -1,13 +1,34 @@
 package data;
 
+import lombok.Value;
+
 public class DataHelper {
     private DataHelper() {}
 
-    // Извлекает число из строки, например из "баланс: 9900 р." достанет 9900
-    public static int extractBalance(String text) {
-        String[] parts = text.split(":");
-        String balancePart = parts[1].trim();
-        String cleanNumber = balancePart.replaceAll("[^0-9]", "");
-        return Integer.parseInt(cleanNumber);
+    @Value
+    public static class AuthInfo {
+        String login;
+        String password;
+    }
+
+    public static AuthInfo getAuthInfo() {
+        return new AuthInfo("vasya", "qwerty123");
+    }
+
+    @Value
+    public static class VerificationCode {
+        String code;
+    }
+
+    public static VerificationCode getVerificationCode() {
+        return new VerificationCode("12345");
+    }
+
+    public static String getFirstCard() {
+        return "5559 0000 0000 0001";
+    }
+
+    public static String getSecondCard() {
+        return "5559 0000 0000 0002";
     }
 }
